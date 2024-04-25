@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
 	gql "github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
@@ -13,11 +12,11 @@ import (
 
 type (
 	Motorcycle struct {
-		Year     time.Time `json:"year"`
-		Make     string    `json:"make"`
-		Model    string    `json:"model"`
-		ImageURL string    `json:"imageUrl"`
-		ID       int       `json:"name"`
+		Year     int    `json:"year"`
+		Make     string `json:"make"`
+		Model    string `json:"model"`
+		ImageURL string `json:"imageUrl"`
+		ID       int    `json:"id"`
 	}
 )
 
@@ -36,7 +35,7 @@ var (
 						Type: gql.String,
 					},
 					"year": &gql.ArgumentConfig{
-						Type: gql.DateTime,
+						Type: gql.Int,
 					},
 				},
 				Resolve: func(params gql.ResolveParams) (interface{}, error) {
@@ -48,12 +47,14 @@ var (
 					if !isOk {
 						return Motorcycle{}, fmt.Errorf("failed to get 'model' argument from query")
 					}
-					yearQuery, isOk := params.Args["year"].(time.Time)
+					yearQuery, isOk := params.Args["year"].(int)
 					if !isOk {
 						return Motorcycle{}, fmt.Errorf("failed to get 'year' argument from query")
 					}
 					for _, mc := range MotorcycleList {
-						if mc.Make == makeQuery && mc.Model == modelQuery && mc.Year.Equal(yearQuery) {
+						if mc.Make == makeQuery &&
+							mc.Model == modelQuery &&
+							mc.Year == yearQuery {
 							return mc, nil
 						}
 					}
@@ -83,7 +84,7 @@ var (
 				Type: gql.String,
 			},
 			"year": &gql.Field{
-				Type: gql.DateTime,
+				Type: gql.Int,
 			},
 			"imageUrl": &gql.Field{
 				Type: gql.String,
@@ -92,7 +93,7 @@ var (
 	})
 
 	MotorcycleList []Motorcycle
-	_ = importJSONDataFromFile("./motorcycleData.json", &MotorcycleList)
+	_              = importJSONDataFromFile("./motorcycleData.json", &MotorcycleList)
 
 	MotorcycleSchema, _ = gql.NewSchema(gql.SchemaConfig{
 		Query: rootQuery,
@@ -101,13 +102,13 @@ var (
 
 func main() {
 	h := handler.New(&handler.Config{
-		Schema: &MotorcycleSchema,
-		Pretty: true,
+		Schema:   &MotorcycleSchema,
+		Pretty:   true,
 		GraphiQL: false,
 	})
 
 	http.Handle("/graphql", h)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("127.0.0.1:8080", nil)
 }
 
 func importJSONDataFromFile(fileName string, result interface{}) (isOK bool) {

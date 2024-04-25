@@ -1,0 +1,16 @@
+[
+	{
+		"id": 1000,
+		"make": "Kawasaki",
+		"model": "Vulcan 650 S",
+		"year": 2019,
+		"imageUrl": "vulcans.png"
+	},
+	{
+		"id": 1001,
+		"make": "BMW",
+		"model": "F800GS",
+		"year": 2024,
+		"imageUrl": "bmwf800gs.png"
+	}
+]
