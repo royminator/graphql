@@ -1,1 +1,1 @@
-# graphql-exp
+# graphql
